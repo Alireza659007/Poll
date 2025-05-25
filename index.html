@@ -2,71 +2,97 @@
 <html lang="fa">
 <head>
   <meta charset="UTF-8" />
-  <title>سیستم بازی با ثبت نام و جدول امتیازات</title>
-  <link rel="stylesheet" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>سایت کسب درآمد با دلار</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- کتابخانه QRCode -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>سیستم امتیازدهی</h1>
 
-    <section id="registerSection">
-      <h2>ثبت نام</h2>
-      <input id="regUsername" placeholder="نام کاربری" />
-      <input id="regPassword" type="password" placeholder="رمز عبور" />
-      <button onclick="registerUser()">ثبت نام</button>
-      <p id="regMsg"></p>
-    </section>
+  <!-- بخش ثبت نام -->
+  <section id="registerSection">
+    <h2>ثبت نام</h2>
+    <input id="regUsername" placeholder="نام کاربری" />
+    <input id="regPassword" type="password" placeholder="رمز عبور" />
+    <button onclick="register()">ثبت نام</button>
+    <p id="regMsg"></p>
+  </section>
 
-    <section id="loginSection">
-      <h2>ورود</h2>
-      <input id="loginUsername" placeholder="نام کاربری" />
-      <input id="loginPassword" type="password" placeholder="رمز عبور" />
-      <button onclick="loginUser()">ورود</button>
-      <p id="loginMsg"></p>
-    </section>
+  <!-- بخش ورود -->
+  <section id="loginSection">
+    <h2>ورود</h2>
+    <input id="loginUsername" placeholder="نام کاربری" />
+    <input id="loginPassword" type="password" placeholder="رمز عبور" />
+    <button onclick="login()">ورود</button>
+    <p id="loginMsg"></p>
+  </section>
 
-    <section id="userPanel" class="hidden">
-      <h2>خوش آمدید، <span id="currentUserName"></span></h2>
-      <p>موجودی شما: <span id="balanceDisplay">0$</span></p>
+  <!-- پنل کاربری -->
+  <section id="userPanel" class="hidden">
+    <h3>خوش آمدید، <span id="currentUserName"></span></h3>
+    <p>موجودی شما: <span id="balanceDisplay"></span></p>
 
-      <h3>دریافت دلار با کد</h3>
-      <input id="userCode" placeholder="کد را وارد کنید" />
-      <button onclick="redeemCode()">دریافت</button>
+    <div>
+      <input id="userCode" placeholder="کد دلار خود را وارد کنید" />
+      <button onclick="redeemCode()">دریافت دلار</button>
       <p id="redeemMsg"></p>
+    </div>
 
-      <h3>انتقال دلار</h3>
-      <input id="transferTo" placeholder="نام گیرنده" />
-      <input id="transferAmount" type="number" placeholder="مقدار" />
-      <button onclick="transferDollar()">انتقال</button>
+    <div>
+      <input id="transferTo" placeholder="نام کاربری مقصد" />
+      <input id="transferAmount" type="number" placeholder="مقدار دلار" />
+      <button onclick="transferDollar()">انتقال دلار</button>
       <p id="transferMsg"></p>
+    </div>
 
-      <h3>جدول امتیازات</h3>
-      <table id="scoreTable">
-        <thead><tr><th>رتبه</th><th>نام کاربری</th><th>موجودی</th></tr></thead>
-        <tbody></tbody>
-      </table>
+    <button onclick="logout()">خروج</button>
+  </section>
 
-      <button onclick="logout()">خروج</button>
-    </section>
+  <!-- پنل مدیریت (لیدر) -->
+  <section id="adminLogin">
+    <h2>ورود پنل مدیریت</h2>
+    <input id="adminPass" type="password" placeholder="رمز مدیر" />
+    <button onclick="loginAdmin()">ورود</button>
+    <p id="adminMsg"></p>
+  </section>
 
-    <section id="adminLogin">
-      <h2>ورود لیدر</h2>
-      <input id="adminPass" type="password" placeholder="رمز" />
-      <button onclick="loginAdmin()">ورود</button>
-      <p id="adminMsg"></p>
-    </section>
+  <section id="adminPanel" class="hidden">
+    <h2>پنل مدیریت</h2>
 
-    <section id="adminPanel" class="hidden">
-      <h3>ساخت کد دلاری</h3>
-      <input id="amountInput" type="number" placeholder="مقدار دلار" />
-      <button onclick="createCode()">ایجاد کد و QR</button>
-      <div id="newCodeInfo"></div>
-      <canvas id="qrCanvas"></canvas>
-      <button onclick="logoutAdmin()">خروج</button>
-    </section>
-  </div>
+    <div>
+      <input id="amountInput" type="number" placeholder="مقدار دلار کد" />
+      <button onclick="createCode()">ساخت کد جدید</button>
+      <p id="newCodeInfo"></p>
+      <canvas id="qrCanvas" style="display:none;"></canvas>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
-  <script src="script.js"></script>
+    <div>
+      <h3>مسدودسازی کاربر</h3>
+      <input id="banUserInput" placeholder="نام کاربری برای مسدودسازی" />
+      <button onclick="banUserFromInput()">مسدود کن</button>
+      <p id="banUserMsg"></p>
+    </div>
+
+    <button onclick="logoutAdmin()">خروج از مدیریت</button>
+  </section>
+
+  <!-- جدول ۱۰ نفر برتر -->
+  <section>
+    <h3>۱۰ نفر برتر</h3>
+    <table id="scoreTable">
+      <thead>
+        <tr><th>رتبه</th><th>نام کاربری</th><th>موجودی ($)</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <!-- پیام پایین صفحه -->
+  <footer>
+    <p id="footerMessage"></p>
+  </footer>
+
+  <script src="app.js"></script>
 </body>
-  </html>
+</html>
