@@ -245,3 +245,5 @@ function banUserFromInput() {
   const username = document.getElementById("banUserInput").value.trim();
   const msg = document.getElementById("banUserMsg");
   msg.style.color = "#ff6f61
+document.getElementById("footerMessage").innerText = 
+  "رقابت کنید و می‌توانید از این سایت کسب درآمد کنید و قیمت فعلی هر 1 دلار در این سایت 2000 تومان است. می‌توانید کار بگذارید و شرط بکشید (ممکن است قیمت بالاتر برود. بدرود فعلا ...)";
