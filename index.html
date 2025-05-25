@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8" />
+  <title>سیستم بازی با ثبت نام و جدول امتیازات</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>سیستم امتیازدهی</h1>
+
+    <section id="registerSection">
+      <h2>ثبت نام</h2>
+      <input id="regUsername" placeholder="نام کاربری" />
+      <input id="regPassword" type="password" placeholder="رمز عبور" />
+      <button onclick="registerUser()">ثبت نام</button>
+      <p id="regMsg"></p>
+    </section>
+
+    <section id="loginSection">
+      <h2>ورود</h2>
+      <input id="loginUsername" placeholder="نام کاربری" />
+      <input id="loginPassword" type="password" placeholder="رمز عبور" />
+      <button onclick="loginUser()">ورود</button>
+      <p id="loginMsg"></p>
+    </section>
+
+    <section id="userPanel" class="hidden">
+      <h2>خوش آمدید، <span id="currentUserName"></span></h2>
+      <p>موجودی شما: <span id="balanceDisplay">0$</span></p>
+
+      <h3>دریافت دلار با کد</h3>
+      <input id="userCode" placeholder="کد را وارد کنید" />
+      <button onclick="redeemCode()">دریافت</button>
+      <p id="redeemMsg"></p>
+
+      <h3>انتقال دلار</h3>
+      <input id="transferTo" placeholder="نام گیرنده" />
+      <input id="transferAmount" type="number" placeholder="مقدار" />
+      <button onclick="transferDollar()">انتقال</button>
+      <p id="transferMsg"></p>
+
+      <h3>جدول امتیازات</h3>
+      <table id="scoreTable">
+        <thead><tr><th>رتبه</th><th>نام کاربری</th><th>موجودی</th></tr></thead>
+        <tbody></tbody>
+      </table>
+
+      <button onclick="logout()">خروج</button>
+    </section>
+
+    <section id="adminLogin">
+      <h2>ورود لیدر</h2>
+      <input id="adminPass" type="password" placeholder="رمز" />
+      <button onclick="loginAdmin()">ورود</button>
+      <p id="adminMsg"></p>
+    </section>
+
+    <section id="adminPanel" class="hidden">
+      <h3>ساخت کد دلاری</h3>
+      <input id="amountInput" type="number" placeholder="مقدار دلار" />
+      <button onclick="createCode()">ایجاد کد و QR</button>
+      <div id="newCodeInfo"></div>
+      <canvas id="qrCanvas"></canvas>
+      <button onclick="logoutAdmin()">خروج</button>
+    </section>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+  <script src="script.js"></script>
+</body>
+  </html>
