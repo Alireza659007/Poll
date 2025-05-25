@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+<meta charset="UTF-8">
+<title>سیستم بازی با ثبت نام و دلار</title>
+<style>
+  body {
+    font-family: Tahoma, sans-serif;
+    direction: rtl;
+    background: linear-gradient(135deg, #6a11cb, #2575fc);
+    color: #fff;
+    max-width: 700px;
+    margin: auto;
+    padding: 20px;
+  }
+  input, button {
+    padding: 10px;
+    margin: 5px 0;
+    width: 100%;
+    font-size: 16px;
+    border-radius: 5px;
+    border: none;
+  }
+  button {
+    background-color: #4b0082;
+    color: white;
+    cursor: pointer;
+  }
+  button:hover {
+    background-color: #3a0066;
+  }
+  .hidden { display: none; }
+  #qrCanvas { margin-top: 10px; background-color: white; }
+  table {
+    width: 100%; border-collapse: collapse; margin-top: 20px; background-color: rgba(255,255,255,0.1);
+  }
+  th, td {
+    border: 1px solid #ccc; padding: 8px; text-align: center; color: white;
+  }
+  th { background-color: rgba(0,0,0,0.3); }
+</style>
+</head>
+<body>
+
+<h2>ثبت نام</h2>
+<input id="regUsername" placeholder="نام کاربری" />
+<input id="regPassword" type="password" placeholder="رمز عبور" />
+<button onclick="registerUser()">ثبت نام</button>
+<p id="regMsg" style="color:yellow"></p>
+
+<hr>
+
+<h2>ورود</h2>
+<input id="loginUsername" placeholder="نام کاربری" />
+<input id="loginPassword" type="password" placeholder="رمز عبور" />
+<button onclick="loginUser()">ورود</button>
+<p id="loginMsg" style="color:yellow"></p>
+
+<hr>
+
+<div id="userPanel" class="hidden">
+  <h3>خوش آمدی، <span id="currentUserName"></span></h3>
+  <p>موجودی دلار شما: <span id="balanceDisplay">0$</span></p>
+
+  <h4>دریافت دلار با وارد کردن کد QR</h4>
+  <input id="userCode" placeholder="کد را وارد کنید" />
+  <button onclick="redeemCode()">دریافت دلار</button>
+  <p id="redeemMsg" style="color:yellow"></p>
+
+  <h4>انتقال دلار به دیگران</h4>
+  <input id="transferTo" placeholder="نام گیرنده" />
+  <input id="transferAmount" type="number" placeholder="مقدار دلار" />
+  <button onclick="transferDollar()">انتقال</button>
+  <p id="transferMsg" style="color:yellow"></p>
+
+  <button onclick="logout()">خروج</button>
+
+  <h3>جدول امتیازات</h3>
+  <table id="scoreTable">
+    <thead><tr><th>رتبه</th><th>کاربر</th><th>دلار</th></tr></thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+<hr>
+
+<div id="adminLogin">
+  <h2>ورود پنل لیدر</h2>
+  <input id="adminPass" type="password" placeholder="رمز عبور لیدر" />
+  <button onclick="loginAdmin()">ورود</button>
+  <p id="adminMsg" style="color:yellow"></p>
+</div>
+
+<div id="adminPanel" class="hidden">
+  <h3>ساخت کد یکبار مصرف و QR</h3>
+  <input id="amountInput" type="number" placeholder="مقدار دلار" />
+  <button onclick="createCode()">ایجاد کد و QR</button>
+  <p id="newCodeInfo"></p>
+  <canvas id="qrCanvas"></canvas>
+  <button onclick="logoutAdmin()">خروج لیدر</button>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script>
+  const ADMIN_PASSWORD = "12345";  // رمز عبور لیدر
+  let users = JSON.parse(localStorage.getItem("users") || "{}");
+  let codes = JSON.parse(localStorage.getItem("codes") || "{}");
+  let currentUser = null;
+
+  function saveData() {
+    localStorage.setItem("users", JSON.stringify(users));
+    localStorage.setItem("codes", JSON.stringify(codes));
+  }
+
+  function registerUser() {
+    const u = document.getElementById("regUsername").value.trim();
+    const p = document.getElementById("regPassword").value.trim();
+    if (!u || !p) return alert("لطفاً نام کاربری و رمز عبور وارد کنید.");
+    if (users[u]) return alert("این نام کاربری قبلاً ثبت شده است.");
+    users[u] = { password: p, balance: 5 };  // موجودی اولیه
+    saveData();
+    alert("ثبت نام موفق! با همان اطلاعات وارد شوید.");
+  }
+
+  function loginUser() {
+    const u = document.getElementById("loginUsername").value.trim();
+    const p = document.getElementById("loginPassword").value.trim();
+    if (!users[u] || users[u].password !== p) return alert("اطلاعات نادرست!");
+    currentUser = u;
+    document.getElementById("currentUserName").innerText = u;
+    document.getElementById("userPanel").classList.remove("hidden");
+    document.getElementById("adminLogin").classList.add("hidden");
+    updateBalance();
+    updateScoreTable();
+  }
+
+  function updateBalance() {
+    document.getElementById("balanceDisplay").innerText = users[currentUser].balance + "$";
+  }
+
+  function redeemCode() {
+    const code = document.getElementById("userCode").value.trim();
+    if (!codes[code]) return alert("کد اشتباه یا استفاده شده.");
+    users[currentUser].balance += codes[code];
+    delete codes[code];
+    saveData();
+    updateBalance();
+    updateScoreTable();
+    alert(`شما ${codes[code]}$ دریافت کردید!`);
+  }
+
+  function transferDollar() {
+    const to = document.getElementById("transferTo").value.trim();
+    const amt = parseInt(document.getElementById("transferAmount").value);
+    if (!users[to]) return alert("کاربر مقصد یافت نشد.");
+    if (users[currentUser].balance < amt) return alert("موجودی کافی نیست.");
+    users[currentUser].balance -= amt;
+    users[to].balance += amt;
+    saveData();
+    updateBalance();
+    updateScoreTable();
+    alert("انتقال موفق!");
+  }
+
+  function updateScoreTable() {
+    const tbody = document.querySelector("#scoreTable tbody");
+    tbody.innerHTML = "";
+    Object.keys(users).sort((a,b) => users[b].balance - users[a].balance).forEach((u,i) => {
+      tbody.innerHTML += `<tr><td>${i+1}</td><td>${u}</td><td>${users[u].balance}$</td></tr>`;
+    });
+  }
+
+  function logout() {
+    currentUser = null;
+    document.getElementById("userPanel").classList.add("hidden");
+    document.getElementById("adminLogin").classList.remove("hidden");
+  }
+
+  function loginAdmin() {
+    if (document.getElementById("adminPass").value === ADMIN_PASSWORD) {
+      document.getElementById("adminPanel").classList.remove("hidden");
+      document.getElementById("adminLogin").classList.add("hidden");
+    } else {
+      alert("رمز اشتباه است.");
+    }
+  }
+
+  function logoutAdmin() {
+    document.getElementById("adminPanel").classList.add("hidden");
+    document.getElementById("adminLogin").classList.remove("hidden");
+  }
+
+  function createCode() {
+    const amount = parseInt(document.getElementById("amountInput").value);
+    const code = Math.random().toString(36).substr(2,8).toUpperCase();
+    codes[code] = amount;
+    saveData();
+    document.getElementById("newCodeInfo").innerText = `کد: ${code}, مقدار: ${amount}$`;
+    QRCode.toCanvas(document.getElementById("qrCanvas"), code, error => {
+      if (error) console.error(error);
+    });
+  }
+</script>
+</body>
+</html>
