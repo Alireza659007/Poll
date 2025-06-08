@@ -1,0 +1,187 @@
+<!DOCTYPE html><html lang="fa">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ماشین سکه‌ای – بازی جهانی</title>
+<style>
+  @import url('https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css');
+  body {
+    margin: 0;
+    font-family: 'Vazirmatn', sans-serif;
+    background: linear-gradient(135deg, #fdd835, #f06292);
+    overflow: hidden;
+    color: #222;
+    user-select: none;
+  }
+  #gameCanvas {
+    background: linear-gradient(to bottom, #bbdefb, #e3f2fd);
+    display: block;
+    margin: 20px auto;
+    border: 5px solid #fff;
+    border-radius: 16px;
+    box-shadow: 0 0 30px #ff4081aa;
+  }
+  #logo {
+    font-size: 32px;
+    font-weight: 900;
+    text-align: center;
+    color: #fff;
+    margin-top: 10px;
+    animation: bounce 2s infinite;
+    text-shadow: 0 0 15px #fff, 0 0 30px #f50057;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+  }
+  .panel {
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffffffdd;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 0 25px #00000055;
+    z-index: 1000;
+    display: none;
+    width: 320px;
+    text-align: center;
+  }
+  input, select, button {
+    margin-top: 10px;
+    padding: 10px;
+    font-size: 16px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+  }
+  button {
+    background: #f06292;
+    color: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    width: 100%;
+  }
+  button:hover {
+    background: #d81b60;
+  }
+  #scoreList {
+    max-height: 150px;
+    overflow-y: auto;
+    font-weight: 700;
+    font-size: 18px;
+    direction: ltr;
+  }
+</style>
+</head>
+<body>
+  <div id="logo">🚗 ماشین سکه‌ای - نسخه جهانی!</div>
+  <canvas id="gameCanvas" width="400" height="600"></canvas>  <!-- نوار اشتراک و دکمه خروج -->  <div id="logoutBar" style="display: none; position: fixed; top: 70px; left: 50%; transform: translateX(-50%); z-index: 1000;">
+    <button onclick="logout()" style="background:#ef5350; color:#fff; font-weight: bold; border:none; padding:10px 20px; border-radius:8px; box-shadow: 0 0 10px #00000033;">خروج از حساب</button>
+  </div>  <div id="subscriptionProgress" style="display:none; position: fixed; bottom: 10px; left: 50%; transform: translateX(-50%); width: 80%; max-width: 400px; background: #ffffffcc; border-radius: 10px; box-shadow: 0 0 10px #0002; padding: 10px; text-align: center; font-weight: bold; direction: rtl; font-size: 14px; z-index: 1000;">
+    <div id="remainingDaysText">در حال بارگذاری...</div>
+    <div class="bg" style="background: #ccc; border-radius: 6px; overflow: hidden; margin-top: 8px;">
+      <div id="progressBar" style="height: 12px; background: linear-gradient(to right, #4caf50, #8bc34a); border-radius: 6px; width: 0%; transition: width 0.5s ease;"></div>
+    </div>
+  </div>  <!-- باقی پنل‌ها -->  <div id="loginPanel" class="panel" style="display:block;">
+    <h3>ورود با کد لایسنس</h3>
+    <input type="text" id="licenseCode" placeholder="کد لایسنس را وارد کنید" />
+    <button onclick="login()">ورود</button>
+    <br />
+    <button onclick="adminLogin()">پنل مدیریت</button>
+  </div>  <div id="adminPanel" class="panel">
+    <h3>ساخت کد لایسنس جدید</h3>
+    <label>
+      مدت اعتبار (روز):
+      <input type="number" id="duration" value="30" min="1" max="365" />
+    </label>
+    <br />
+    <label>
+      نسخه:
+      <select id="tier">
+        <option value="bronze">برنز</option>
+        <option value="silver">نقره</option>
+        <option value="gold">طلا</option>
+      </select>
+    </label>
+    <br />
+    <button onclick="generateLicense()">ساخت لایسنس</button>
+    <div id="newLicenseDisplay" style="margin-top:10px; color:#444;"></div>
+  </div>  <div id="transferPanel" class="panel">
+    <h3>انتقال سکه</h3>
+    <input type="text" id="recipientCode" placeholder="کد 6 رقمی گیرنده" maxlength="6" />
+    <input type="number" id="transferAmount" placeholder="مقدار (تومان)" min="1" />
+    <button onclick="transferCoins()">ارسال</button>
+  </div>  <div id="scoreBoard" class="panel">
+    <h3>جدول امتیازات</h3>
+    <div id="scoreList"></div>
+  </div><script>
+// کد قبلی بازی و سایر توابع اینجا باقی می‌مونه ...
+
+function showSubscriptionProgress(license) {
+  const totalMs = license.expires - license.start;
+  const remainingMs = license.expires - Date.now();
+  const totalDays = Math.ceil(totalMs / 86400000);
+  const remainingDays = Math.max(0, Math.ceil(remainingMs / 86400000));
+  const percentLeft = Math.max(0, Math.min(100, (remainingMs / totalMs) * 100));
+
+  document.getElementById("subscriptionProgress").style.display = "block";
+  document.getElementById("logoutBar").style.display = "block";
+  document.getElementById("remainingDaysText").innerText = `📅 ${remainingDays} روز از اشتراک باقی‌مانده`;
+  document.getElementById("progressBar").style.width = percentLeft + "%";
+}
+
+function logout() {
+  isPlaying = false;
+  licenseCode = "";
+  tier = "bronze";
+  coinCount = 0;
+  document.getElementById("loginPanel").style.display = "block";
+  document.getElementById("adminPanel").style.display = "none";
+  document.getElementById("transferPanel").style.display = "none";
+  document.getElementById("scoreBoard").style.display = "none";
+  document.getElementById("subscriptionProgress").style.display = "none";
+  document.getElementById("logoutBar").style.display = "none";
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// اضافه کردن start هنگام ساخت لایسنس:
+function generateLicense() {
+  const id = Math.random().toString(36).substring(2, 18);
+  const duration = parseInt(document.getElementById("duration").value);
+  const tierSelect = document.getElementById("tier").value;
+  const licenses = JSON.parse(localStorage.getItem("licenses") || '{}');
+  licenses[id] = {
+    tier: tierSelect,
+    expires: Date.now() + duration * 86400000,
+    start: Date.now(),
+    coins: 0,
+    code: Math.floor(100000 + Math.random() * 900000)
+  };
+  localStorage.setItem("licenses", JSON.stringify(licenses));
+  document.getElementById("newLicenseDisplay").innerText = "کد ساخته شد: " + id;
+}
+
+// در login بعد از موفقیت:
+function login() {
+  const code = document.getElementById("licenseCode").value.trim();
+  const data = JSON.parse(localStorage.getItem("licenses") || '{}');
+  if (data[code] && Date.now() < data[code].expires) {
+    tier = data[code].tier;
+    licenseCode = code;
+    coinCount = data[code].coins || 0;
+    document.getElementById("loginPanel").style.display = "none";
+    document.getElementById("transferPanel").style.display = "block";
+    document.getElementById("scoreBoard").style.display = "block";
+    isPlaying = true;
+    animate();
+    updateScoreBoard();
+    showSubscriptionProgress(data[code]);
+  } else {
+    alert("کد نامعتبر یا منقضی شده!");
+  }
+}
+</script></body>
+</html>
