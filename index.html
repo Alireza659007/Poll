@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>بازی انفجار حرفه‌ای | نسخه ایلان ماسک</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- نوار بالایی -->
+        <header class="app-header">
+            <div class="user-info">
+                <span id="username">کاربر مهمان</span>
+                <span id="user-balance">0 تومان</span>
+            </div>
+            <div class="header-actions">
+                <button id="sound-toggle"><i class="fas fa-volume-up"></i></button>
+                <button id="logout-btn">خروج</button>
+            </div>
+        </header>
+
+        <!-- بخش اصلی بازی -->
+        <main class="game-area">
+            <div class="game-display">
+                <div class="multiplier-display">
+                    <span id="current-multiplier">1.00x</span>
+                </div>
+                <div class="game-graph"></div>
+                <div class="game-controls">
+                    <input type="number" id="bet-amount" placeholder="مبلغ شرط">
+                    <input type="number" id="auto-cashout" placeholder="ضریب اتوماتیک">
+                    <button id="place-bet">شروع بازی</button>
+                    <button id="cash-out" disabled>دریافت سود</button>
+                </div>
+            </div>
+
+            <div class="game-sidebar">
+                <div class="player-stats">
+                    <h3>آمار شما</h3>
+                    <!-- آمار کاربر -->
+                </div>
+                <div class="game-history">
+                    <h3>تاریخچه بازی‌ها</h3>
+                    <!-- تاریخچه بازی‌های اخیر -->
+                </div>
+                <div class="top-winners">
+                    <h3>برندگان امروز</h3>
+                    <!-- لیست برندگان -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        const game = new ExplosionGame();
+    </script>
+</body>
+</html>
