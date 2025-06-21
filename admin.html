@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>پنل مدیریت بازی انفجار</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="admin-container">
+        <aside class="admin-sidebar">
+            <div class="admin-logo">پنل مدیریت</div>
+            <nav class="admin-menu">
+                <ul>
+                    <li class="active"><a href="#dashboard"><i class="fas fa-tachometer-alt"></i> پیشخوان</a></li>
+                    <li><a href="#users"><i class="fas fa-users"></i> مدیریت کاربران</a></li>
+                    <li><a href="#games"><i class="fas fa-gamepad"></i> مدیریت بازی‌ها</a></li>
+                    <li><a href="#financial"><i class="fas fa-coins"></i> امور مالی</a></li>
+                    <li><a href="#settings"><i class="fas fa-cog"></i> تنظیمات سیستم</a></li>
+                    <li><a href="#reports"><i class="fas fa-chart-bar"></i> گزارشات</a></li>
+                    <li><a href="#logs"><i class="fas fa-clipboard-list"></i> لاگ سیستم</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-content">
+            <div class="admin-content-header">
+                <h1 id="page-title">پیشخوان مدیریت</h1>
+                <div class="admin-actions">
+                    <button id="refresh-data"><i class="fas fa-sync-alt"></i> بروزرسانی</button>
+                    <button id="admin-logout"><i class="fas fa-sign-out-alt"></i> خروج</button>
+                </div>
+            </div>
+
+            <div class="admin-content-body">
+                <!-- محتوای پویای پنل مدیریت -->
+                <div id="dashboard-view" class="content-view active">
+                    <!-- آمار و اطلاعات کلی سیستم -->
+                </div>
+
+                <div id="users-view" class="content-view">
+                    <!-- مدیریت کاربران -->
+                    <div class="user-management">
+                        <div class="search-box">
+                            <input type="text" placeholder="جستجوی کاربر...">
+                            <button><i class="fas fa-search"></i></button>
+                        </div>
+                        <div class="user-list">
+                            <!-- لیست کاربران -->
+                        </div>
+                        <div class="user-actions">
+                            <button id="add-balance">افزایش موجودی</button>
+                            <button id="reduce-balance">کاهش موجودی</button>
+                            <button id="ban-user">مسدود کردن</button>
+                            <button id="delete-user">حذف کاربر</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- سایر بخش‌های پنل مدیریت -->
+            </div>
+        </main>
+    </div>
+
+    <script src="js/utils.js"></script>
+    <script src="js/db.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        const adminPanel = new AdminPanel();
+    </script>
+</body>
+</html>
